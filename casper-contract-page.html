@@ -1,0 +1,82 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+<dom-module id="casper-contract-page">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 100px;
+        /* height: 100%; */
+        background-color: red;
+        box-sizing: border-box;
+      }
+
+      .content {
+        height: 90vh;
+        overflow: auto;
+        background-color: yellow;
+      }
+    </style>
+
+    <div class="content">
+      <slot></slot>
+    </div>
+    <paper-button on-tap="_customerAgreement">Concordo</paper-button>
+  </template>
+
+  <script>
+    /**
+     * `casper-contract-page`
+     * A component to acceptance of terms and conditions
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class CasperContract extends Polymer.Element {
+      static get is() { return 'casper-contract-page'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'casper-contract-page'
+          }
+        };
+      }
+      ready () {
+        super.ready();
+        this._params = CasperContract.getParams(window.location.href);
+      }
+
+      _customerAgreement (event) {
+        console.log(this._params.jwt);
+        var xhr = new XMLHttpRequest();
+    		xhr.open("POST", '/jobs', true);
+
+    		// Headers
+    		xhr.setRequestHeader("Content-type", "application/text");
+    		xhr.setRequestHeader("Accept",       "application/json");
+
+    		//
+    		xhr.timeout = 10000;
+
+        xhr.send('blah');
+      }
+
+      static getParams (url) {
+         var regex = /[?&]([^=#]+)=([^&#]*)/g,
+             params = {},
+             match;
+         while(match = regex.exec(url)) {
+             params[match[1]] = match[2];
+         }
+         return params;
+      }
+    }
+
+    window.customElements.define(CasperContract.is, CasperContract);
+  </script>
+</dom-module>
