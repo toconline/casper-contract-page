@@ -4,27 +4,110 @@
 <dom-module id="casper-contract-page">
   <template>
     <style>
+
       :host {
         display: flex;
         flex-direction: column;
-        width: 100%;
-        padding: 100px;
-        /* height: 100%; */
-        background-color: red;
+        padding: 10px;
+        width: 70%;
+        max-width: 960px;
         box-sizing: border-box;
+        word-break: break-all;
       }
 
       .content {
-        height: 90vh;
         overflow: auto;
-        background-color: yellow;
+        padding: 10px;
+        background-color: white;
+      }
+
+      .container-text, .title {
+        padding: 20px;
+      }
+
+      .content .hero img {
+        width: 100%;
+        display: inline-block;
+      }
+
+      ::slotted(hr) {
+        display: none;
+      }
+
+      ::slotted(b) {
+        color: var(--primary-color);
+        font-size: 20px;
+        font-weight: normal;
+      }
+
+      ::slotted(a){
+        /* background-color: var(--primary-color); */
+        color: var(--primary-color);;
+        text-transform: none;
+      }
+
+      ::slotted(a:hover){
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      paper-button{
+        width: 100%;
+        text-align: center;
+        background-color: var(--primary-color);
+        color: white;
+        margin: 0px;
+        /* margin-top: 20px;
+        margin-bottom: 20px;
+        margin: 120px; */
+        /* word-break: break-all; */
+      }
+
+      .button-container {
+        padding: 20px;
+      }
+
+      .title {
+        font-size: 40px;
+        color: var(--primary-color);
+        font-family: 'Titan One', cursive;
+      }
+
+
+      @media only screen
+      and (min-device-width : 320px)
+      and (max-device-width : 1024px)
+      and (-webkit-min-device-pixel-ratio: 1)  {
+
+        :host {
+          width: 100%;
+          background: green;
+        }
+
       }
     </style>
 
     <div class="content">
-      <slot></slot>
+
+      <template is="dom-if" if="[[image]]" restamp="true">
+        <div class="hero">
+          <img src="[[image]]" alt="hero image">
+        </div>
+      </template>
+
+      <template is="dom-if" if="[[title]]" restamp="true">
+        <div class="title">
+          [[title]]
+        </div>
+      </template>
+      <div class="container-text">
+        <slot></slot>
+      </div>
+      <div class="button-container">
+        <paper-button on-tap="_customerAgreement">Concordo</paper-button>
+      </div>
     </div>
-    <paper-button on-tap="_customerAgreement">Concordo</paper-button>
+
   </template>
 
   <script>
@@ -43,6 +126,12 @@
           prop1: {
             type: String,
             value: 'casper-contract-page'
+          },
+          title: {
+            type: Object
+          },
+          image: {
+            type: Object
           }
         };
       }
