@@ -124,9 +124,13 @@
       static get is() { return 'casper-contract-page'; }
       static get properties() {
         return {
-          prop1: {
+          xhrUrl: {
             type: String,
-            value: 'casper-contract-page'
+            value: '/jobs'
+          },
+          jwtParam: {
+            type: String,
+            value: 'jwt'
           },
           title: {
             type: Object
@@ -135,27 +139,6 @@
             type: Object
           }
         };
-      }
-      ready () {
-        super.ready();
-        this._params = CasperContract.getParams(window.location.href);
-      }
-
-      _customerAgreement (event) {
-        console.log(this._params.jwt);
-        var xhr = new XMLHttpRequest();
-    		xhr.open("POST", '/jobs', true);
-
-    		// Headers
-    		xhr.setRequestHeader("Content-type", "application/text");
-    		xhr.setRequestHeader("Accept",       "application/json");
-
-    		//
-    		xhr.timeout = 10000;
-
-        xhr.send('blah');
-
-        this.dispatchEvent(new CustomEvent('customer-agreement-clicked', {bubbles: true, composed: true}));
       }
 
       static getParams (url) {
@@ -166,6 +149,21 @@
              params[match[1]] = match[2];
          }
          return params;
+      }
+
+      ready () {
+        super.ready();
+        this._params = CasperContract.getParams(window.location.href);
+      }
+
+      _customerAgreement (event) {
+        var xhr = new XMLHttpRequest();
+    		xhr.open("POST", this.xhrUrl, true);
+    		xhr.setRequestHeader("Content-type", "application/text");
+    		xhr.setRequestHeader("Accept",       "application/json");
+    		xhr.timeout = 10000;
+
+        xhr.send(this._params[this.jwtParam]);
       }
     }
 
