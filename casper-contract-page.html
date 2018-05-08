@@ -208,10 +208,21 @@
 
       _customerAgreement (event) {
         var xhr = new XMLHttpRequest();
+        var response = null;
     		xhr.open("POST", this.xhrUrl, true);
     		xhr.setRequestHeader("Content-type", "application/text");
     		xhr.setRequestHeader("Accept",       "application/json");
     		xhr.timeout = 10000;
+
+        xhr.onreadystatechange = function() {
+    			if (xhr.readyState == XMLHttpRequest.DONE) {
+    				if (xhr.status == 200) {
+    				    response = JSON.parse(xhr.response);
+                window.location = response.redirect_to;
+    				} else {
+    				}
+    		  }
+    		}
 
         xhr.send(this._params[this.jwtParam]);
       }
