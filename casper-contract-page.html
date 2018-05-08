@@ -21,8 +21,13 @@
         background-color: white;
       }
 
+
       .container-text, .title {
         padding: 20px;
+      }
+
+      .container-text {
+        padding-bottom: 100px;
       }
 
       .content .hero img {
@@ -41,7 +46,6 @@
       }
 
       ::slotted(a){
-        /* background-color: var(--primary-color); */
         color: var(--primary-color);;
         text-transform: none;
       }
@@ -63,8 +67,35 @@
         /* word-break: break-all; */
       }
 
+      paper-button[disabled] {
+        background: #eaeaea;
+        color: #a8a8a8;
+        cursor: auto;
+        pointer-events: none;
+      }
+
       .button-container {
-        padding: 20px;
+        padding: 10px 20px 20px 20px;
+        background: white;
+        position: fixed;
+        bottom: 0;
+        width: 882px;
+        border-top: 1px #eaeaea solid;
+        /* left: 0; */
+        /* width: 70%; */
+        /* max-width: 960px; */
+        /* width: 960px; */
+      }
+
+      .button-container .instuctions {
+        text-align: center;
+        display: inherit;
+        margin-bottom: 10px;
+        color: gray;
+      }
+
+      .button-container paper-button {
+        width: 100%;
       }
 
       .title {
@@ -105,7 +136,8 @@
         <slot></slot>
       </div>
       <div class="button-container">
-        <paper-button on-tap="_customerAgreement">Concordo</paper-button>
+        <small class='instuctions'>Obrigatório ler as condições antes de aceitar.</small>
+        <paper-button id="submitButton" disabled on-tap="_customerAgreement">Concordo</paper-button>
       </div>
     </div>
 
@@ -139,6 +171,24 @@
       ready () {
         super.ready();
         this._params = CasperContract.getParams(window.location.href);
+        window.onscroll = function(ev) {
+           if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+              this.$.submitButton.disabled = false;
+           }
+        }.bind(this);
+
+        this._adjustButton();
+
+        window.onresize = function(){
+          this._adjustButton();
+        }.bind(this);
+
+      }
+
+      _adjustButton () {
+        var text   = this.shadowRoot.querySelector('.container-text');
+        var button = this.shadowRoot.querySelector('.button-container');
+        button.style.width = text.getBoundingClientRect().width - 40 + 'px';
       }
 
       _customerAgreement (event) {
@@ -155,7 +205,7 @@
 
         xhr.send('blah');
 
-        this.dispatchEvent(new CustomEvent('customer-agreement-clicked', {bubbles: true, composed: true}));
+        this.dispatchEvent(new CustomEvent('customer-agreement-clicked', {detail: {foo: 'bar'}, bubbles: true, composed: true}));
       }
 
       static getParams (url) {
