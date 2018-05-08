@@ -81,8 +81,9 @@
 
         :host {
           width: 100%;
-          background: green;
+          /* background: green; */
         }
+
 
       }
     </style>
@@ -153,6 +154,8 @@
     		xhr.timeout = 10000;
 
         xhr.send('blah');
+
+        this.dispatchEvent(new CustomEvent('customer-agreement-clicked', {bubbles: true, composed: true}));
       }
 
       static getParams (url) {
