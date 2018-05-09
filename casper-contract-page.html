@@ -30,7 +30,7 @@
       }
 
       .container-text {
-        padding-bottom: 100px;
+        padding-bottom: 150px;
       }
 
       .content .hero img {
@@ -238,6 +238,7 @@
           this._adjustButton();
         }.bind(this);
 
+        this.style.opacity = 1;
       }
 
       _errorMessage (msg) {
@@ -280,14 +281,19 @@
     		xhr.timeout = 10000;
 
         xhr.onreadystatechange = function() {
-    			if (xhr.readyState == XMLHttpRequest.DONE) {
-            response = JSON.parse(xhr.response);
-    				if (xhr.status == 200) {
-                window.location = response.redirect_to;
-    				} else {
-              this._submittingState(false);
-              this._errorMessage(response.message);
-    				}
+          if (xhr.readyState == XMLHttpRequest.DONE) {
+            switch (xhr.status) {
+              case 200:
+                window.location = JSON.parse(xhr.response).redirect_to;
+                break;
+              case 500:
+                this._submittingState(false)
+                this._errorMessage(JSON.parse(xhr.response).message);
+                break;
+              default:
+                this._submittingState(false)
+                this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
+            }
     		  }
     		}.bind(this)
 
