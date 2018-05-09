@@ -120,6 +120,12 @@
         color: gray;
       }
 
+      .button-container .instructions.error {
+        display: none;
+        color: red;
+        font-style: italic;
+      }
+
       .button-container paper-button {
         width: 100%;
       }
@@ -129,7 +135,6 @@
         color: var(--primary-color);
         font-family: 'Titan One', cursive;
       }
-
 
       @media only screen
       and (min-device-width : 320px)
@@ -164,7 +169,8 @@
       <div class="button-container">
         <div class="shadow-break"></div>
         <div class="inner-container">
-          <small class='instructions'>Obrigatório ler as condições para aceitar.</small>
+          <small id="instructions" class='instructions'>Obrigatório ler as condições até ao fim para aceitar.</small>
+          <small id="error_messages" class='instructions error'></small>
           <paper-button id="submitButton" disabled on-tap="_customerAgreement">Concordo e aceito</paper-button>
         </div>
       </div>
@@ -229,6 +235,12 @@
 
       }
 
+      _errorMessage (msg) {
+        this.$.instructions.style.display   = 'none';
+        this.$.error_messages.innerText = msg;
+        this.$.error_messages.style.display = 'block';
+      }
+
       _adjustButton () {
         var text   = this.shadowRoot.querySelector('.container-text');
         var button = this.shadowRoot.querySelector('.button-container');
@@ -243,6 +255,7 @@
     		xhr.timeout = 10000;
 
         xhr.send(this._params[this.jwtParam]);
+        this._errorMessage("Erro ao aceitar, por favor tente novamente.");
       }
     }
 
