@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
 
 <dom-module id="casper-contract-page">
   <template>
@@ -13,6 +14,8 @@
         max-width: 960px;
         box-sizing: border-box;
         word-break: break-all;
+        --paper-spinner-color: var(--primary-color);
+        --paper-spinner-stroke-width: 5px;
       }
 
       .content {
@@ -83,18 +86,9 @@
 
       .button-container {
         padding: 10px 20px 0px 20px;
-        /* background: white; */
         position: fixed;
         bottom: 0;
         width: 882px;
-        /* margin-bottom: 20px; */
-
-        /* Rectangle: */
-
-        /* left: 0; */
-        /* width: 70%; */
-        /* max-width: 960px; */
-        /* width: 960px; */
       }
 
       .button-container .inner-container, .button-container .shadow-break{
@@ -103,7 +97,7 @@
       }
 
       .button-container .inner-container {
-        background: white;
+        background: #f9f9f9;
         padding: 10px 20px 20px 20px
       }
 
@@ -135,6 +129,14 @@
         color: var(--primary-color);
         font-family: 'Titan One', cursive;
       }
+
+      /* #spin {
+        margin-right: 10px;
+      } */
+
+      /* #submitButton .text {
+        margin-left: 10px;
+      } */
 
       @media only screen
       and (min-device-width : 320px)
@@ -171,7 +173,10 @@
         <div class="inner-container">
           <small id="instructions" class='instructions'>Obrigatório ler as condições até ao fim para aceitar.</small>
           <small id="error_messages" class='instructions error'></small>
-          <paper-button id="submitButton" disabled on-tap="_customerAgreement">Concordo e aceito</paper-button>
+          <paper-button id="submitButton" disabled on-tap="_customerAgreement">
+            <paper-spinner-lite id="spin"></paper-spinner-lite>
+            <span id="submitText" class='text'>Concordo e aceito</span>
+          </paper-button>
         </div>
       </div>
     </div>
@@ -247,7 +252,26 @@
         button.style.width = text.getBoundingClientRect().width - 40 + 'px';
       }
 
+      _submittingState (state) {
+        switch (state) {
+          case true:
+            this.$.submitButton.disabled = true;
+            this.$.spin.active = true;
+            this.$.submitText.style.display = 'none';
+            break;
+          case false:
+            this.$.spin.active = false;
+            this.$.submitText.style.display = 'inline-block';
+            this.$.submitButton.disabled = false;
+            break;
+          default:
+
+        }
+      }
+
       _customerAgreement (event) {
+        this._submittingState(true);
+
         var xhr = new XMLHttpRequest();
         var response = null;
     		xhr.open("POST", this.xhrUrl, true);
@@ -261,6 +285,7 @@
     				    response = JSON.parse(xhr.response);
                 window.location = response.redirect_to;
     				} else {
+              this._submittingState(false);
               this._errorMessage("Alguma coisa correu mal, por favor tente novamente.");
     				}
     		  }
