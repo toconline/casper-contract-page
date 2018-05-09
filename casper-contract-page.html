@@ -281,12 +281,12 @@
 
         xhr.onreadystatechange = function() {
     			if (xhr.readyState == XMLHttpRequest.DONE) {
+            response = JSON.parse(xhr.response);
     				if (xhr.status == 200) {
-    				    response = JSON.parse(xhr.response);
                 window.location = response.redirect_to;
     				} else {
               this._submittingState(false);
-              this._errorMessage("Alguma coisa correu mal, por favor tente novamente.");
+              this._errorMessage(response.message);
     				}
     		  }
     		}.bind(this)
