@@ -261,12 +261,12 @@
     				    response = JSON.parse(xhr.response);
                 window.location = response.redirect_to;
     				} else {
+              this._errorMessage("Erro ao aceitar, por favor tente novamente.");
     				}
     		  }
-    		}
+    		}.bind(this)
 
         xhr.send(this._params[this.jwtParam]);
-        this._errorMessage("Erro ao aceitar, por favor tente novamente.");
       }
     }
 
