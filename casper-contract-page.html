@@ -61,10 +61,16 @@
         background-color: var(--primary-color);
         color: white;
         margin: 0px;
+        transition: background-color 0.5s;
         /* margin-top: 20px;
         margin-bottom: 20px;
         margin: 120px; */
         /* word-break: break-all; */
+      }
+
+      paper-button:hover {
+        background: var(--dark-primary-color);;
+        transition: background-color 0.5s;
       }
 
       paper-button[disabled] {
@@ -72,19 +78,39 @@
         color: #a8a8a8;
         cursor: auto;
         pointer-events: none;
+        transition: background-color 0.5s;
       }
 
       .button-container {
-        padding: 10px 20px 20px 20px;
-        background: white;
+        padding: 10px 20px 0px 20px;
+        /* background: white; */
         position: fixed;
         bottom: 0;
         width: 882px;
-        border-top: 1px #eaeaea solid;
+        /* margin-bottom: 20px; */
+
+        /* Rectangle: */
+
         /* left: 0; */
         /* width: 70%; */
         /* max-width: 960px; */
         /* width: 960px; */
+      }
+
+      .button-container .inner-container, .button-container .shadow-break{
+        margin-left: -20px;
+        margin-right: -20px;
+      }
+
+      .button-container .inner-container {
+        background: white;
+        padding: 10px 20px 20px 20px
+      }
+
+      .button-container .shadow-break{
+        background-image: linear-gradient(-180deg, rgba(238,238,238,0.00) 0%, #f9f9f9 100%);
+        border-bottom: 1px #f1f0f0 solid;
+        height: 30px;
       }
 
       .button-container .instructions {
@@ -136,8 +162,11 @@
         <slot></slot>
       </div>
       <div class="button-container">
-        <small class='instructions'>Obrigatório ler as condições antes de aceitar.</small>
-        <paper-button id="submitButton" disabled on-tap="_customerAgreement">Concordo</paper-button>
+        <div class="shadow-break"></div>
+        <div class="inner-container">
+          <small class='instructions'>Obrigatório ler as condições para aceitar.</small>
+          <paper-button id="submitButton" disabled on-tap="_customerAgreement">Concordo e aceito</paper-button>
+        </div>
       </div>
     </div>
 
