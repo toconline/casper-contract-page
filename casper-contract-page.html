@@ -16,6 +16,11 @@
         /* word-break: break-all; */
         --paper-spinner-color: var(--primary-color);
         --paper-spinner-stroke-width: 5px;
+        /* background-color: red; */
+      }
+
+      :host(.iframe) {
+        width: 100%;
       }
 
       .content {
@@ -25,12 +30,12 @@
       }
 
 
-      .container-text, .title {
-        padding: 20px;
+      .title {
+        padding: 20px 20px 0 20px;
       }
 
       .container-text {
-        padding-bottom: 150px;
+        padding: 0 20px 150px 20px;
       }
 
       .content .hero img {
@@ -114,6 +119,11 @@
         color: gray;
       }
 
+      .button-container .instructions.success {
+        color: green;
+        font-style: italic;
+      }
+
       .button-container .instructions.error {
         display: none;
         color: red;
@@ -165,17 +175,21 @@
           [[title]]
         </div>
       </template>
-      <div class="container-text">
-        <slot></slot>
+      <div class="container-text" id="container_text" name="document">
+        <slot name="document"></slot>
       </div>
       <div class="button-container" id="action_container">
         <div class="shadow-break"></div>
         <div class="inner-container">
-          <small id="instructions" class='instructions'>Obrigatório ler as condições até ao fim para aceitar.</small>
+          <small id="instructions" class='instructions'>
+            <slot name="instructions"></slot>
+          </small>
           <small id="error_messages" class='instructions error'></small>
           <paper-button id="submitButton" disabled on-tap="_customerAgreement">
             <paper-spinner-lite id="spin"></paper-spinner-lite>
-            <span id="submitText" class='text'>Concordo e aceito</span>
+            <span id="submitText" class='text'>
+              <slot name="action-button">Concordo e aceito</slot>
+            </span>
           </paper-button>
         </div>
       </div>
@@ -209,6 +223,14 @@
           },
           image: {
             type: Object
+          },
+          acceptanceRequired: {
+            type: Boolean,
+            value: false
+          },
+          checkboxRequired: {
+            type: Boolean,
+            value: false
           }
         };
       }
@@ -226,11 +248,14 @@
       ready () {
         super.ready();
         this._params = CasperContract.getParams(window.location.href);
-        window.onscroll = function(ev) {
-           if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+
+        if(this.checkboxRequired == false){
+          window.onscroll = function(ev) {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
               this.$.submitButton.disabled = false;
-           }
-        }.bind(this);
+            }
+          }.bind(this);
+        }
 
         this._adjustButton();
 
@@ -243,13 +268,31 @@
           this.shadowRoot.querySelector('.container-text').style.paddingBottom = '20px';
         }
 
+        window.parent.dispatchEvent(new CustomEvent('contract_page_ready', { detail: { ready_to_show: true } }));
         this.style.opacity = 1;
+
+        if(this.checkboxRequired == true){
+          this.$.container_text.addEventListener('click', function (event) {
+            if(event.target.parentElement.className == 'checkbox'){
+              this._buttonState(!event.target.parentElement.children[0].checked);
+            }
+          }.bind(this), false);
+        }
+
       }
 
       _errorMessage (msg) {
+        this.$.instructions.classList.remove("success");
         this.$.instructions.style.display   = 'none';
-        this.$.error_messages.innerText = msg;
+        this.$.error_messages.innerText     = msg;
         this.$.error_messages.style.display = 'block';
+      }
+
+      _successMessage (msg) {
+        this.$.error_messages.style.display   = 'none';
+        this.$.instructions.classList.add("success");
+        this.$.instructions.style.display     = 'block';
+        this.$.instructions.innerText         = msg;
       }
 
       _adjustButton () {
@@ -258,17 +301,22 @@
         button.style.width = text.getBoundingClientRect().width - 40 + 'px';
       }
 
+      _buttonState (state) {
+        this.$.submitButton.disabled = state;
+      }
       _submittingState (state) {
         switch (state) {
           case true:
-            this.$.submitButton.disabled = true;
+            // this.$.submitButton.disabled = true;
+            this._buttonState(true);
             this.$.spin.active = true;
             this.$.submitText.style.display = 'none';
             break;
           case false:
             this.$.spin.active = false;
             this.$.submitText.style.display = 'inline-block';
-            this.$.submitButton.disabled = false;
+            // this.$.submitButton.disabled = false;
+            this._buttonState(false);
             break;
           default:
 
@@ -289,7 +337,23 @@
           if (xhr.readyState == XMLHttpRequest.DONE) {
             switch (xhr.status) {
               case 200:
-                window.location = JSON.parse(xhr.response).redirect_to;
+                var response_parse = JSON.parse(xhr.response)
+                var response_message = response_parse.message || 'resposta com sucesso';
+
+                if(response_parse.redirect_to != undefined) {
+                  this._successMessage(response_message);
+                  setTimeout(function(){
+                    window.location = JSON.parse(xhr.response).redirect_to;
+                  }, 1000);
+                }
+
+                if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
+                  this._successMessage(response_message);
+                  setTimeout(function(){
+                    window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
+                  }, 1000);
+                }
+
                 break;
               case 500:
                 this._submittingState(false)
