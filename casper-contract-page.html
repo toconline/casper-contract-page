@@ -330,7 +330,6 @@
     		xhr.open("POST", this.xhrUrl, true);
     		xhr.setRequestHeader("Content-type", "application/text");
     		xhr.setRequestHeader("Accept",       "application/json");
-    		xhr.timeout = 10000;
 
         xhr.onreadystatechange = function() {
           if (xhr.readyState == XMLHttpRequest.DONE) {
