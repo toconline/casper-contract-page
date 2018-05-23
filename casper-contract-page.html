@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer-element.html">
-<link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../casper-button/casper-button.html">
 
 <dom-module id="casper-contract-page">
   <template>
@@ -41,28 +40,6 @@
       .content .hero img {
         width: 100%;
         display: inline-block;
-      }
-
-      paper-button{
-        width: 100%;
-        text-align: center;
-        background-color: var(--primary-color);
-        color: white;
-        margin: 0px;
-        transition: background-color 0.5s;
-      }
-
-      paper-button:hover {
-        background: var(--dark-primary-color);;
-        transition: background-color 0.5s;
-      }
-
-      paper-button[disabled] {
-        background: #eaeaea;
-        color: #a8a8a8;
-        cursor: auto;
-        pointer-events: none;
-        transition: background-color 0.5s;
       }
 
       .button-container {
@@ -116,13 +93,26 @@
         font-family: 'Titan One', cursive;
       }
 
-      /* #spin {
-        margin-right: 10px;
-      } */
 
-      /* #submitButton .text {
-        margin-left: 10px;
-      } */
+      .buttons {
+        display: flex;
+      }
+
+      .buttons casper-button {
+        width: 100%;
+      }
+
+      .buttons casper-button:first-child {
+        margin-left: 0px;
+      }
+
+      .buttons casper-button#declineButton {
+        margin-right: 10px;
+      }
+
+      #declineButton {
+        display: none;
+      }
 
       @media only screen
       and (min-device-width : 320px)
@@ -160,12 +150,20 @@
             <slot name="instructions"></slot>
           </small>
           <small id="error_messages" class='instructions error'></small>
-          <paper-button id="submitButton" disabled on-tap="_customerAgreement">
-            <paper-spinner-lite id="spin"></paper-spinner-lite>
-            <span id="submitText" class='text'>
-              <slot name="action-button">Concordo e aceito</slot>
-            </span>
-          </paper-button>
+
+          <div class="buttons">
+            <casper-button id="declineButton" class="decline-button" on-tap="_declineAction">
+              <div slot="text-button">
+                <slot name="decline-button">NO</slot>
+              </div>
+            </casper-button>
+
+            <casper-button id="submitButton" on-tap="_customerAgreement">
+              <div slot="text-button">
+                <slot name="action-button">Concordo e aceito</slot>
+              </div>
+            </casper-button>
+          </div>
         </div>
       </div>
     </div>
@@ -199,11 +197,15 @@
           image: {
             type: Object
           },
-          acceptanceRequired: {
+            acceptanceRequired: {
             type: Boolean,
             value: false
           },
           checkboxRequired: {
+            type: Boolean,
+            value: false
+          },
+          yesNoRequired: {
             type: Boolean,
             value: false
           }
@@ -223,6 +225,10 @@
       ready () {
         super.ready();
         this._params = CasperContract.getParams(window.location.href);
+
+        if(this.yesNoRequired == true) {
+          this.$.declineButton.style.display = 'block'
+        }
 
         if(this.checkboxRequired == false){
           window.onscroll = function(ev) {
@@ -276,19 +282,20 @@
       }
 
       _buttonState (state) {
+        // var button_scope = this.shadowRoot.querySelector('casper-button');
         this.$.submitButton.disabled = state;
       }
-      _submittingState (state) {
+      _submittingState (state, event) {
         switch (state) {
           case true:
             // this.$.submitButton.disabled = true;
             this._buttonState(true);
-            this.$.spin.active = true;
-            this.$.submitText.style.display = 'none';
+            event.currentTarget.$.spin.active = true;
+            event.currentTarget.$.submitText.style.display = 'none';
             break;
           case false:
-            this.$.spin.active = false;
-            this.$.submitText.style.display = 'inline-block';
+            this.shadowRoot.querySelector('casper-button').$.spin.active = false;
+            this.shadowRoot.querySelector('casper-button').$.submitText.style.display = 'inline-block';
             // this.$.submitButton.disabled = false;
             this._buttonState(false);
             break;
@@ -297,14 +304,23 @@
         }
       }
 
+      _declineAction (event) {
+        window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
+      }
+
       _customerAgreement (event) {
-        this._submittingState(true);
+        this._submittingState(true, event);
 
         var xhr = new XMLHttpRequest();
         var response = null;
     		xhr.open("POST", this.xhrUrl, true);
     		xhr.setRequestHeader("Content-type", "application/text");
     		xhr.setRequestHeader("Accept",       "application/json");
+
+        xhr.onprogress = function (event) {
+          this.$.submitButton.progress = event.loaded;
+          console.log(event.loaded, event.total);
+        }.bind(this);
 
         xhr.onreadystatechange = function() {
           if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -315,6 +331,7 @@
 
                 if(response_parse.redirect_to != undefined) {
                   this._successMessage(response_message);
+                  this.$.submitButton.progress = 100;
                   setTimeout(function(){
                     window.location = JSON.parse(xhr.response).redirect_to;
                   }, 1000);
@@ -322,6 +339,7 @@
 
                 if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
                   this._successMessage(response_message);
+                  this.$.submitButton.progress = 100;
                   setTimeout(function(){
                     window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
                   }, 1000);
@@ -330,14 +348,17 @@
                 break;
               case 500:
                 this._submittingState(false)
+                this.$.submitButton.progress = 0;
                 this._errorMessage(JSON.parse(xhr.response).message);
+
                 break;
               default:
                 this._submittingState(false)
+                this.$.submitButton.progress = 0;
                 this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
             }
     		  }
-    		}.bind(this)
+    		}.bind(this);
 
         xhr.send(this._params[this.jwtParam]);
       }
