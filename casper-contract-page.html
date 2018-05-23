@@ -197,7 +197,7 @@
           image: {
             type: Object
           },
-            acceptanceRequired: {
+          acceptanceRequired: {
             type: Boolean,
             value: false
           },
@@ -230,10 +230,16 @@
           this.$.declineButton.style.display = 'block'
         }
 
+        if(this.acceptanceRequired == true){
+          this._buttonState(true);
+        }
+
         if(this.checkboxRequired == false){
           window.onscroll = function(ev) {
+
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-              this.$.submitButton.disabled = false;
+              // this.$.submitButton.disabled = false;
+              this._buttonState(false);
             }
           }.bind(this);
         }
