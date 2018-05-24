@@ -377,6 +377,16 @@
                 }
 
                 break;
+              case 409:
+                this._submittingState(false, button)
+                button.progress = 0;
+                this._errorMessage(JSON.parse(xhr.response).message);
+
+                setTimeout(function(){
+                  window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
+                }, 1000);
+
+                break;
               case 500:
                 this._submittingState(false, button)
                 button.progress = 0;
@@ -387,6 +397,10 @@
                 this._submittingState(false, button)
                 button.progress = 0;
                 this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
+
+                setTimeout(function(){
+                  window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
+                }, 1000);
             }
     		  }
     		}.bind(this);
