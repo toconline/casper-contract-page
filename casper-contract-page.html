@@ -248,7 +248,7 @@
         }
 
         if(this.acceptanceRequired == true){
-          this._buttonState(true);
+          this._buttonState(true, this.$.submitButton);
         }
 
         if(this.checkboxRequired == false){
@@ -256,7 +256,7 @@
 
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
               // this.$.submitButton.disabled = false;
-              this._buttonState(false);
+              this._buttonState(false, this.$.submitButton);
             }
           }.bind(this);
         }
@@ -328,11 +328,21 @@
       }
 
       _declineAction (event) {
+        this._hideButton(this.$.submitButton);
         this._sendToJob(event, 'decline', this.$.declineButton);
       }
 
       _customerAgreement (event) {
+        this._hideButton(this.$.declineButton);
         this._sendToJob(event, 'accept', this.$.submitButton);
+      }
+
+      _hideButton(element) {
+        element.style.display = 'none';
+      }
+
+      _showButton(element) {
+        element.style.display = 'block';
       }
 
       _sendToJob (event, action, button) {
@@ -365,7 +375,7 @@
                   button.progress = 100;
                   setTimeout(function(){
                     window.location = JSON.parse(xhr.response).redirect_to;
-                  }, 1000);
+                  }, 2000);
                 }
 
                 if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
@@ -373,24 +383,18 @@
                   button.progress = 100;
                   setTimeout(function(){
                     window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                  }, 1000);
+                  }, 2000);
                 }
 
                 break;
-              case 409:
+              case 409, 500:
                 this._submittingState(false, button)
                 button.progress = 0;
                 this._errorMessage(JSON.parse(xhr.response).message);
 
                 setTimeout(function(){
                   window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, 1000);
-
-                break;
-              case 500:
-                this._submittingState(false, button)
-                button.progress = 0;
-                this._errorMessage(JSON.parse(xhr.response).message);
+                }, 2000);
 
                 break;
               default:
@@ -400,7 +404,7 @@
 
                 setTimeout(function(){
                   window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, 1000);
+                }, 2000);
             }
     		  }
     		}.bind(this);
