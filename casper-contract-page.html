@@ -222,6 +222,13 @@
          return params;
       }
 
+      static _b64EncodeUnicode (str) {
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+          function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+        }));
+      }
+
       ready () {
         super.ready();
         this._params = CasperContract.getParams(window.location.href);
@@ -287,15 +294,15 @@
         button.style.width = text.getBoundingClientRect().width - 40 + 'px';
       }
 
-      _buttonState (state) {
+      _buttonState (state, button) {
         // var button_scope = this.shadowRoot.querySelector('casper-button');
-        this.$.submitButton.disabled = state;
+        button.disabled = state;
       }
-      _submittingState (state, event) {
+      _submittingState (state, button, event) {
         switch (state) {
           case true:
             // this.$.submitButton.disabled = true;
-            this._buttonState(true);
+            this._buttonState(true, button);
             event.currentTarget.$.spin.active = true;
             event.currentTarget.$.submitText.style.display = 'none';
             break;
@@ -303,7 +310,7 @@
             this.shadowRoot.querySelector('casper-button').$.spin.active = false;
             this.shadowRoot.querySelector('casper-button').$.submitText.style.display = 'inline-block';
             // this.$.submitButton.disabled = false;
-            this._buttonState(false);
+            this._buttonState(false, button);
             break;
           default:
 
@@ -311,20 +318,28 @@
       }
 
       _declineAction (event) {
-        window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
+        this._sendToJob(event, 'decline', this.$.declineButton);
       }
 
       _customerAgreement (event) {
-        this._submittingState(true, event);
+        this._sendToJob(event, 'accept', this.$.submitButton);
+      }
+
+      _sendToJob (event, action, button) {
+        this._submittingState(true, button, event);
 
         var xhr = new XMLHttpRequest();
         var response = null;
+        var extra_params = {
+          action: action
+        };
     		xhr.open("POST", this.xhrUrl, true);
-    		xhr.setRequestHeader("Content-type", "application/text");
-    		xhr.setRequestHeader("Accept",       "application/json");
+        xhr.setRequestHeader("Content-type",            "application/text");
+    		xhr.setRequestHeader("Accept",                  "application/json");
+        xhr.setRequestHeader("Casper-Extra-Job-Params", CasperContract._b64EncodeUnicode(JSON.stringify(extra_params)));
 
         xhr.onprogress = function (event) {
-          this.$.submitButton.progress = event.loaded;
+          button.progress = event.loaded;
           // console.log(event.loaded, event.total);
         }.bind(this);
 
@@ -337,7 +352,7 @@
 
                 if(response_parse.redirect_to != undefined) {
                   this._successMessage(response_message);
-                  this.$.submitButton.progress = 100;
+                  button.progress = 100;
                   setTimeout(function(){
                     window.location = JSON.parse(xhr.response).redirect_to;
                   }, 1000);
@@ -345,7 +360,7 @@
 
                 if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
                   this._successMessage(response_message);
-                  this.$.submitButton.progress = 100;
+                  button.progress = 100;
                   setTimeout(function(){
                     window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
                   }, 1000);
@@ -353,14 +368,14 @@
 
                 break;
               case 500:
-                this._submittingState(false)
-                this.$.submitButton.progress = 0;
+                this._submittingState(false, button)
+                button.progress = 0;
                 this._errorMessage(JSON.parse(xhr.response).message);
 
                 break;
               default:
-                this._submittingState(false)
-                this.$.submitButton.progress = 0;
+                this._submittingState(false, button)
+                button.progress = 0;
                 this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
             }
     		  }
