@@ -387,7 +387,8 @@
                 }
 
                 break;
-              case 409, 500:
+              case 409:
+              case 500:
                 this._submittingState(false, button)
                 button.progress = 0;
                 this._errorMessage(JSON.parse(xhr.response).message);
