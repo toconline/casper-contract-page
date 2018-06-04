@@ -1,6 +1,6 @@
 {
   "name": "casper-contract-page",
-  "description": "A component to acceptance of terms and conditions release test",
+  "description": "A component to acceptance of terms and conditions",
   "main": "casper-contract-page.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
