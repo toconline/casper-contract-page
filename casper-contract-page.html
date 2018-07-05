@@ -218,6 +218,10 @@
           yesNoRequired: {
             type: Boolean,
             value: false
+          },
+          noDelayResponse: {
+            type: Boolean,
+            value: false
           }
         };
       }
@@ -364,6 +368,7 @@
         }.bind(this);
 
         xhr.onreadystatechange = function() {
+          var delay = this.noDelayResponse ? 0 : 2000;
           if (xhr.readyState == XMLHttpRequest.DONE) {
             switch (xhr.status) {
               case 200:
@@ -375,7 +380,7 @@
                   button.progress = 100;
                   setTimeout(function(){
                     window.location = JSON.parse(xhr.response).redirect_to;
-                  }, 2000);
+                  }, delay);
                 }
 
                 if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
@@ -383,7 +388,7 @@
                   button.progress = 100;
                   setTimeout(function(){
                     window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                  }, 2000);
+                  }, delay);
                 }
 
                 break;
@@ -395,7 +400,7 @@
 
                 setTimeout(function(){
                   window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, 2000);
+                }, delay);
 
                 break;
               default:
@@ -405,7 +410,7 @@
 
                 setTimeout(function(){
                   window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, 2000);
+                }, delay);
             }
     		  }
     		}.bind(this);
