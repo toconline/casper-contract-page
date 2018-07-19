@@ -163,15 +163,11 @@
 
           <div class="buttons">
             <casper-button id="declineButton" css_class="decline-button" on-tap="_declineAction">
-              <div slot="text-button">
-                <slot name="decline-button">NO</slot>
-              </div>
+              <a name="decline-button">NO</a>
             </casper-button>
 
             <casper-button id="submitButton" on-tap="_customerAgreement">
-              <div slot="text-button">
-                <slot name="action-button">Concordo e aceito</slot>
-              </div>
+              <a name="action-button">Concordo e aceito</a>
             </casper-button>
           </div>
         </div>
@@ -279,7 +275,7 @@
         this.style.opacity = 1;
 
         if(this.checkboxRequired == true){
-          this.$.container_text.addEventListener('click', function (event) {
+          this.$.container_text.addEventListener('tap', function (event) {
             if(event.target.parentElement.className == 'checkbox'){
               this._buttonState(!event.target.parentElement.children[0].checked);
             }
@@ -309,26 +305,10 @@
       }
 
       _buttonState (state, button) {
-        // var button_scope = this.shadowRoot.querySelector('casper-button');
         button.disabled = state;
       }
       _submittingState (state, button, event) {
-        switch (state) {
-          case true:
-            // this.$.submitButton.disabled = true;
-            this._buttonState(true, button);
-            event.currentTarget.$.spin.active = true;
-            event.currentTarget.$.submitText.style.display = 'none';
-            break;
-          case false:
-            this.shadowRoot.querySelector('casper-button').$.spin.active = false;
-            this.shadowRoot.querySelector('casper-button').$.submitText.style.display = 'inline-block';
-            // this.$.submitButton.disabled = false;
-            this._buttonState(false, button);
-            break;
-          default:
-
-        }
+        button.submitting(state);
       }
 
       _declineAction (event) {
@@ -364,7 +344,6 @@
 
         xhr.onprogress = function (event) {
           button.progress = event.loaded;
-          // console.log(event.loaded, event.total);
         }.bind(this);
 
         xhr.onreadystatechange = function() {
@@ -378,6 +357,7 @@
                 if(response_parse.redirect_to != undefined) {
                   this._successMessage(response_message);
                   button.progress = 100;
+                  button.done();
                   setTimeout(function(){
                     window.location = JSON.parse(xhr.response).redirect_to;
                   }, delay);
@@ -386,6 +366,8 @@
                 if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
                   this._successMessage(response_message);
                   button.progress = 100;
+                  button.done();
+
                   setTimeout(function(){
                     window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
                   }, delay);
