@@ -163,12 +163,12 @@
           <small id="error_messages" class='instructions error'></small>
 
           <div class="buttons">
-            <casper-button id="declineButton" css_class="decline-button" on-tap="_declineAction">
-              <a name="decline-button">NO</a>
+            <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" css_class="decline-button" on-tap="_declineAction">
+              <slot name="decline-button">NO</slot>
             </casper-button>
 
-            <casper-button id="submitButton" on-tap="_customerAgreement">
-              <a name="action-button">Concordo e aceito</a>
+            <casper-button alt="[[action_text]]" title="[[action_text]]" id="submitButton" on-tap="_customerAgreement">
+              <slot name="action-button">Concordo e aceito</slot>
             </casper-button>
           </div>
         </div>
@@ -274,6 +274,9 @@
         }
 
         this.style.opacity = 1;
+
+        this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent
+        this.action_text  = this.$.submitButton.children[0].assignedNodes()[0].textContent;
 
         if(this.checkboxRequired == true){
           this.$.container_text.addEventListener('tap', function (event) {
