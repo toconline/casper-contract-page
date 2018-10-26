@@ -9,7 +9,6 @@
         display: flex;
         flex-direction: column;
         padding: 10px;
-        width: 70%;
         max-width: 960px;
         box-sizing: border-box;
         /* word-break: break-all; */
@@ -54,8 +53,8 @@
 
       .button-container {
         padding: 10px 20px 0px 20px;
-        position: fixed;
-        bottom: 0;
+        /*position: fixed;
+        bottom: 0;*/
         width: 882px;
       }
 
@@ -194,16 +193,9 @@
             type: String,
             value: '/jobs'
           },
-          jwtParam: {
-            type: String,
-            value: 'jwt'
-          },
-          title: {
-            type: Object
-          },
-          image: {
-            type: Object
-          },
+          tube: String,
+          title: Object,
+          image: Object,
           acceptanceRequired: {
             type: Boolean,
             value: false
@@ -223,26 +215,8 @@
         };
       }
 
-      static getParams (url) {
-         var regex = /[?&]([^=#]+)=([^&#]*)/g,
-             params = {},
-             match;
-         while(match = regex.exec(url)) {
-             params[match[1]] = match[2];
-         }
-         return params;
-      }
-
-      static _b64EncodeUnicode (str) {
-        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-          function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-        }));
-      }
-
       ready () {
         super.ready();
-        this._params = CasperContract.getParams(window.location.href);
 
         if(this.yesNoRequired == true) {
           this.$.declineButton.style.display = 'block'
@@ -264,18 +238,13 @@
 
         this._adjustButton();
 
-        window.onresize = function(){
+        window.onresize = function () {
           this._adjustButton();
         }.bind(this);
 
-        if(this._params[this.jwtParam] == undefined){
-          this.$.action_container.style.display = 'none';
-          this.shadowRoot.querySelector('.container-text').style.paddingBottom = '20px';
-        }
-
         this.style.opacity = 1;
 
-        this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent
+        this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent;
         this.action_text  = this.$.submitButton.children[0].assignedNodes()[0].textContent;
 
         if(this.checkboxRequired == true){
@@ -285,7 +254,6 @@
             }
           }.bind(this), false);
         }
-
       }
 
       _errorMessage (msg) {
@@ -333,75 +301,77 @@
         element.style.display = 'block';
       }
 
+      _submitJobResponse (notification) {
+        let button = this.$.submitButton.style.display === 'none' ? this.$.declineButton : this.$.submitButton;
+        
+        const delay = this.noDelayResponse ? 0 : 2000;
+        let response_message = notification.response.message;
+
+        switch (notification.status_code) {
+          case 200:
+            this._successMessage(response_message);
+            button.progress = 100;
+            button.done();
+
+            if (notification.response.redirect_to != undefined) {
+              setTimeout( ( () => window.location = notification.response.redirect_to ), delay);
+            }
+
+            if (notification.response.close_modal != undefined && notification.response.close_modal == true) {
+              this._closeMe(delay);
+            }
+            break;
+
+          case 409:
+          case 500:
+            this._errorMessage(response_message);
+            this._disableSubmit(button, delay);
+            break;
+
+          default:
+            this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
+            this._disableSubmit(button, delay);
+        }
+      }
+
+      _disableSubmit (button, delay) {
+        this._submittingState(false, button);
+        button.progress = 0;
+
+        this._closeMe(delay);
+      }
+
+      _closeMe (delay) {
+        setTimeout( ( () => this.dialog.close() ).bind(this), delay);
+        this.dialog.socket.extendSession();
+      }
+
       _sendToJob (event, action, button) {
         this._submittingState(true, button, event);
-
-        var xhr = new XMLHttpRequest();
-        var response = null;
-        var extra_params = {
-          action: action
-        };
-    		xhr.open("POST", this.xhrUrl, true);
-        xhr.setRequestHeader("Content-type",            "application/text");
-    		xhr.setRequestHeader("Accept",                  "application/json");
-        xhr.setRequestHeader("Casper-Extra-Job-Params", CasperContract._b64EncodeUnicode(JSON.stringify(extra_params)));
-
-        xhr.onprogress = function (event) {
-          button.progress = event.loaded;
-        }.bind(this);
-
-        xhr.onreadystatechange = function() {
-          var delay = this.noDelayResponse ? 0 : 2000;
-          if (xhr.readyState == XMLHttpRequest.DONE) {
-            switch (xhr.status) {
-              case 200:
-                var response_parse = JSON.parse(xhr.response)
-                var response_message = response_parse.message || 'resposta com sucesso';
-
-                if(response_parse.redirect_to != undefined) {
-                  this._successMessage(response_message);
-                  button.progress = 100;
-                  button.done();
-                  setTimeout(function(){
-                    window.location = JSON.parse(xhr.response).redirect_to;
-                  }, delay);
-                }
-
-                if(response_parse.close_modal != undefined && response_parse.close_modal == true) {
-                  this._successMessage(response_message);
-                  button.progress = 100;
-                  button.done();
-
-                  setTimeout(function(){
-                    window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                  }, delay);
-                }
-
-                break;
-              case 409:
-              case 500:
-                this._submittingState(false, button)
-                button.progress = 0;
-                this._errorMessage(JSON.parse(xhr.response).message);
-
-                setTimeout(function(){
-                  window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, delay);
-
-                break;
-              default:
-                this._submittingState(false, button)
-                button.progress = 0;
-                this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
-
-                setTimeout(function(){
-                  window.parent.dispatchEvent(new CustomEvent('contract_page_close_modal', { detail: { success_contract_page: true } }));
-                }, delay);
+        this.dialog.socket.submitJob(Object.assign({}, {
+            tube: this.contract.tube,
+            dialog_id: this.contract.dialog_id,
+            user_email: window.app.session_data.user_email,
+            action: action,
+            user_id: null,
+            entity_id: null,
+            entity_schema: null,
+            company_schema: null,
+            subentity_schema: null,
+            subentity_prefix: null,
+            origin_ip: null
+          }, this.contract.payload || {}),
+          this._submitJobResponse.bind(this), {
+            ttr: 15,
+            validity: 20,
+            timeout: 20,
+            overlay: {
+              message: 'A registar resposta',
+              icon: 'switch',
+              spinner: true,
             }
-    		  }
-    		}.bind(this);
-
-        xhr.send(this._params[this.jwtParam]);
+          }
+        );
       }
     }
 
