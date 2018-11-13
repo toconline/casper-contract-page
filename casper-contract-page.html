@@ -219,10 +219,19 @@
         super.ready();
 
         if(this.yesNoRequired == true) {
-          this.$.declineButton.style.display = 'block'
+          this._showButton(this.$.declineButton);
+          this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent;
+        } else {
+          this._hideButton(this.$.declineButton);
+          this._buttonState(false, this.$.declineButton);
         }
 
         if(this.acceptanceRequired == true){
+          this._showButton(this.$.submitButton);
+          this._buttonState(false, this.$.submitButton);
+          this.action_text  = this.$.submitButton.children[0].assignedNodes()[0].textContent;
+        } else {
+          this._hideButton(this.$.submitButton);
           this._buttonState(true, this.$.submitButton);
         }
 
@@ -244,8 +253,6 @@
 
         this.style.opacity = 1;
 
-        this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent;
-        this.action_text  = this.$.submitButton.children[0].assignedNodes()[0].textContent;
 
         if(this.checkboxRequired == true){
           this.$.container_text.addEventListener('tap', function (event) {
