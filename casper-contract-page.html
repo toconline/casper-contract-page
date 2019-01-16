@@ -162,7 +162,7 @@
           <small id="error_messages" class='instructions error'></small>
 
           <div class="buttons">
-            <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" css_class="decline-button" on-tap="_declineAction">
+            <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" cssClass="decline-button" on-tap="_declineAction">
               <slot name="decline-button">NO</slot>
             </casper-button>
 
@@ -310,7 +310,7 @@
 
       _submitJobResponse (notification) {
         let button = this.$.submitButton.style.display === 'none' ? this.$.declineButton : this.$.submitButton;
-        
+
         const delay = this.noDelayResponse ? 0 : 2000;
         let response_message = notification.response.message;
 
