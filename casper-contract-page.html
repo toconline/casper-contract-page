@@ -318,7 +318,6 @@
           case 200:
             this._successMessage(response_message);
             button.progress = 100;
-            button.done();
 
             if (notification.response.redirect_to != undefined) {
               setTimeout( ( () => window.location = notification.response.redirect_to ), delay);
