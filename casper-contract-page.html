@@ -317,6 +317,7 @@
         switch (notification.status_code) {
           case 200:
             this._successMessage(response_message);
+            this.app.markContractAsViewd(this.contract);
             button.progress = 100;
 
             if (notification.response.redirect_to != undefined) {
