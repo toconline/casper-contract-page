@@ -303,8 +303,7 @@ class CasperContract extends PolymerElement {
     switch (notification.status_code) {
       case 200:
         this._successMessage(response_message);
-        button.progress = 100;
-        button.done();
+        button.operationComplete('Sucesso');
 
         if (notification.response.redirect_to != undefined) {
           setTimeout( ( () => window.location = notification.response.redirect_to ), delay);
