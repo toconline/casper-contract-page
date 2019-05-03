@@ -132,9 +132,13 @@ class CasperContract extends PolymerElement {
           :host {
             width: 100%;
           }
+
+
         }
       </style>
+
       <div class="content">
+
         <template is="dom-if" if="[[image]]" restamp="true">
           <div class="hero">
             <img src="[[image]]" alt="hero image">
@@ -158,11 +162,11 @@ class CasperContract extends PolymerElement {
             <small id="error_messages" class="instructions error"></small>
 
             <div class="buttons">
-              <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" cssclass="decline-button" on-tap="_declineAction">
+              <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" cssClass="decline-button" on-click="_declineAction">
                 <slot name="decline-button">NO</slot>
               </casper-button>
 
-              <casper-button alt="[[action_text]]" title="[[action_text]]" id="submitButton" on-tap="_customerAgreement">
+              <casper-button alt="[[action_text]]" title="[[action_text]]" id="submitButton" on-click="_customerAgreement">
                 <slot name="action-button">Concordo e aceito</slot>
               </casper-button>
             </div>
@@ -303,7 +307,8 @@ class CasperContract extends PolymerElement {
     switch (notification.status_code) {
       case 200:
         this._successMessage(response_message);
-        button.operationComplete('Sucesso');
+        this.app.markContractAsViewd(this.contract);
+        button.progress = 100;
 
         if (notification.response.redirect_to != undefined) {
           setTimeout( ( () => window.location = notification.response.redirect_to ), delay);
