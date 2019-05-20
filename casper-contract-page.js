@@ -99,7 +99,7 @@ class CasperContract extends PolymerElement {
         .title {
           font-size: 30px;
           color: var(--primary-color);
-          font-family: 'Titan One', cursive;
+          font-family: var(--default-font-family);
         }
 
 
