@@ -302,13 +302,29 @@ class CasperContract extends PolymerElement {
     let button = this.$.submitButton.style.display === 'none' ? this.$.declineButton : this.$.submitButton;
 
     const delay = this.noDelayResponse ? 0 : 2000;
-    let response_message = notification.response.message;
+    let response_message;
+
+    if (notification.response != undefined) {
+      response_message = notification.response.message;
+    } else {
+      if (Array.isArray(notification.message)) {
+        response_message = notification.message.join(' ');
+      } else {
+        response_message = notification.message;
+      }
+    }
 
     switch (notification.status_code) {
       case 200:
         this._successMessage(response_message);
         this.app.markContractAsViewd(this.contract);
         button.progress = 100;
+
+        if (button === this.$.declineButton && this.rejectCalback !== undefined) {
+          this.rejectCalback(notification);
+        } else if (button === this.$.submitButton && this.acceptCalback !== undefined) {
+          this.acceptCalback(notification);
+        }
 
         if (notification.response.redirect_to != undefined) {
           setTimeout( ( () => window.location = notification.response.redirect_to ), delay);
@@ -321,11 +337,17 @@ class CasperContract extends PolymerElement {
 
       case 409:
       case 500:
+        if (this.rejectCalback !== undefined) {
+          this.rejectCalback(notification);
+        }
         this._errorMessage(response_message);
         this._disableSubmit(button, delay);
         break;
 
       default:
+        if (this.rejectCalback !== undefined) {
+          this.rejectCalback(notification);
+        }
         this._errorMessage('Alguma coisa correu mal, por favor tente novamente.');
         this._disableSubmit(button, delay);
     }
