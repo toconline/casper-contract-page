@@ -14,6 +14,7 @@ class CasperContract extends PolymerElement {
           /* word-break: break-all; */
           --paper-spinner-color: var(--primary-color);
           --paper-spinner-stroke-width: 5px;
+          --modal-height: 90vh;
           /* background-color: red; */
         }
 
@@ -26,7 +27,7 @@ class CasperContract extends PolymerElement {
           flex-direction: column;
           padding: 0px;
           background-color: white;
-          height: 90vh;
+          height: var(--modal-height);
         }
 
 
@@ -35,9 +36,10 @@ class CasperContract extends PolymerElement {
         }
 
         .container-text {
-          padding: 0 20px 20px 20px;
+          padding: 0 20px 0 20px;
           flex-grow: 2.0;
           overflow: auto;
+          position: relative;
           /* background-color: yellow; */
           box-sizing: border-box;
         }
@@ -56,10 +58,10 @@ class CasperContract extends PolymerElement {
         }
 
         .button-container {
-          padding: 10px 20px 0px 20px;
+          padding: 0px 20px 0px 20px;
           /*position: fixed;
           bottom: 0;*/
-          width: 882px;
+          width: 882px;.
         }
 
         .button-container .inner-container, .button-container .shadow-break{
@@ -72,10 +74,20 @@ class CasperContract extends PolymerElement {
           padding: 10px 20px 20px 20px
         }
 
-        .button-container .shadow-break{
-          background-image: linear-gradient(-180deg, rgba(238,238,238,0.00) 0%, #f9f9f9 100%);
+        .container-text .document-text {
+          overflow: auto;
+          height: 100%;
+        }
+
+        .shadow-break {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          z-index: 6000;
+          background-image: linear-gradient(-180deg, rgba(238,238,238,0.00) 0%, #00000030 100%);
           border-bottom: 1px #f1f0f0 solid;
-          height: 30px;
+          height: 10px;
+          width: 100%;
         }
 
         .button-container .instructions {
@@ -155,10 +167,10 @@ class CasperContract extends PolymerElement {
           </div>
         </template>
         <div class="container-text" id="container_text" name="document">
-          <slot name="document"></slot>
+          <div class='document-text'><slot name="document"></slot></div>
+          <div class="shadow-break"></div>
         </div>
         <div class="button-container" id="action_container">
-          <div class="shadow-break"></div>
           <div class="inner-container">
             <small id="instructions" class="instructions">
               <slot name="instructions"></slot>
