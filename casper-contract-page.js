@@ -9,7 +9,7 @@ class CasperContract extends PolymerElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
-          max-width: 960px;
+          max-width: 760px;
           box-sizing: border-box;
           /* word-break: break-all; */
           --paper-spinner-color: var(--primary-color);
@@ -22,9 +22,11 @@ class CasperContract extends PolymerElement {
         }
 
         .content {
-          overflow: auto;
+          display: flex;
+          flex-direction: column;
           padding: 0px;
           background-color: white;
+          height: 90vh;
         }
 
 
@@ -33,7 +35,9 @@ class CasperContract extends PolymerElement {
         }
 
         .container-text {
-          padding: 0 20px 100px 20px;
+          padding: 0 20px 20px 20px;
+          flex-grow: 2.0;
+          overflow: auto;
           /* background-color: yellow; */
           box-sizing: border-box;
         }
@@ -381,9 +385,9 @@ class CasperContract extends PolymerElement {
         origin_ip: null
       }, this.contract.payload || {}),
       this._submitJobResponse.bind(this), {
-        ttr: 15,
-        validity: 20,
-        timeout: 20,
+        ttr: 1500,
+        validity: 2000,
+        timeout: 2000,
         overlay: {
           message: 'A registar resposta',
           icon: 'switch',
