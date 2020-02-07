@@ -324,6 +324,7 @@ class CasperContract extends PolymerElement {
     const delay = this.noDelayResponse ? 0 : 2000;
     let response_message;
 
+    this.dialog.socket._dismissOverlay();
     if (notification.response != undefined) {
       response_message = notification.response.message;
     } else {
@@ -337,7 +338,6 @@ class CasperContract extends PolymerElement {
     switch (notification.status_code) {
       case 200:
         this._successMessage(response_message);
-        this.app.markContractAsViewd(this.contract);
         button.progress = 100;
 
         if (button === this.$.declineButton && this.rejectCalback !== undefined) {
@@ -381,6 +381,7 @@ class CasperContract extends PolymerElement {
   }
 
   _closeMe (delay) {
+    this.dialog.socket._dismissOverlay();
     setTimeout( ( () => this.dialog.close() ).bind(this), delay);
     if (!this.withoutExtendSession) {
       this.dialog.socket.extendSession();
@@ -389,6 +390,12 @@ class CasperContract extends PolymerElement {
 
   _sendToJob (event, action, button) {
     this._submittingState(true, button, event);
+    this.dialog.socket._showOverlay({
+        message: 'A registar a sua resposta',
+        icon: 'switch',
+        spinner: true,
+        noCancelOnOutsideClick: true
+    });
     this.dialog.socket.submitJob(Object.assign({}, {
         tube: this.contract.tube,
         dialog_id: this.contract.dialog_id,
@@ -405,12 +412,7 @@ class CasperContract extends PolymerElement {
       this._submitJobResponse.bind(this), {
         ttr: 1500,
         validity: 2000,
-        timeout: 2000,
-        overlay: {
-          message: 'A registar resposta',
-          icon: 'switch',
-          spinner: true,
-        }
+        timeout: 2000
       }
     );
   }
