@@ -217,10 +217,6 @@ class CasperContract extends PolymerElement {
       noDelayResponse: {
         type: Boolean,
         value: false
-      },
-      withoutExtendSession: {
-        type: Boolean,
-        value: false
       }
     };
   }
@@ -383,9 +379,6 @@ class CasperContract extends PolymerElement {
   _closeMe (delay) {
     this.dialog.socket._dismissOverlay();
     setTimeout( ( () => this.dialog.close() ).bind(this), delay);
-    if (!this.withoutExtendSession) {
-      this.dialog.socket.extendSession();
-    }
   }
 
   _sendToJob (event, action, button) {
