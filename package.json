@@ -1,7 +1,10 @@
 {
   "description": "A component to acceptance of terms and conditions",
-  "name": "@casper2020/casper-contract-page",
+  "name": "@cloudware-casper/casper-contract-page",
   "version": "2.0.1",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "resolutions": {
     "inherits": "2.0.3",
     "samsam": "1.1.3",
