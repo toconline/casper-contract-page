@@ -13,7 +13,7 @@
   },
   "main": "casper-contract-page.js",
   "dependencies": {
-    "@casper2020/casper-button": "^1.x",
+    "@cloudware-casper/casper-button": "^1.x",
     "@polymer/polymer": "^3.x"
   },
   "devDependencies": {

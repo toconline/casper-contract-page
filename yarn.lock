@@ -2,27 +2,26 @@
 # yarn lockfile v1
 
 
-"@casper2020/casper-button@^1.x":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@casper2020/casper-button/-/casper-button-1.1.0.tgz#85dac5d6db29ad1f53c5422f38c8abbf403c10ee"
-  integrity sha512-n2qEKFe+YiUL4u3k4W8MMZHv3zoUVa3bqa2QYZLeQ5S3mPl+WQugv6fVQC/1BnE6EVe5a3mi0tyZnKFxbDYllA==
+"@cloudware-casper/casper-button@^1.x":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-button/1.3.0/b5454cd927db2c13700876765dae38c0beb78c77e4cdc0b21b3caa4938851119#94a21be243475f959bcc1ba48574d45d216c1bf7"
+  integrity sha512-ORlyivYLBM1WhzmaqxW2x42TwUg+QFTSbSTDWHhlURm5eVC+DO/WGQ112NngUIeDiMp2zhm27fvGuDJhthNvlA==
   dependencies:
-    "@casper2020/casper-icons" "^1.x"
+    "@cloudware-casper/casper-icons" "^1.x"
     "@polymer/iron-fit-behavior" "^3.x"
-    "@polymer/iron-icon" "^3.x"
     "@polymer/iron-overlay-behavior" "^3.x"
     "@polymer/paper-button" "^3.x"
     "@polymer/paper-spinner" "^3.x"
     "@polymer/polymer" "^3.x"
     "@vaadin/vaadin-progress-bar" "^1.x"
 
-"@casper2020/casper-icons@^1.x":
-  version "1.10.1"
-  resolved "https://registry.yarnpkg.com/@casper2020/casper-icons/-/casper-icons-1.10.1.tgz#ecf0a3235c3b49e91ba4f82bb1af16874f9d2642"
-  integrity sha512-GzLCFMjMQEIjEgfIdTenIFwmCW4u9o+pqSRB97msR7IwUTWVyHjvvIsSvLLsIAIsSov4XifaRKK3bHPgqEA7SQ==
+"@cloudware-casper/casper-icons@^1.x":
+  version "1.20.1"
+  resolved "https://npm.pkg.github.com/download/@cloudware-casper/casper-icons/1.20.1/6ba9149bb421104c8c9d13189d147cb467fc50ffcf6769f0e456ce44634fcf17#77db54efca20b3d3f8b4035fab0c19a08888891d"
+  integrity sha512-ds4GQU4HS8K4np4BNrYZCcN5K+/lXiUzuyf0byFJELY4TXYpm7EhdEVE+E0TIq2llygrcCMIwgaWV/gWiAsSqg==
   dependencies:
-    "@polymer/iron-icons" "^3.0.0"
-    "@polymer/polymer" "^3.0.0"
+    "@polymer/iron-icons" "^3.x"
+    "@polymer/polymer" "^3.x"
 
 "@polymer/font-roboto@^3.0.0-pre.25", "@polymer/font-roboto@^3.0.1":
   version "3.0.2"
