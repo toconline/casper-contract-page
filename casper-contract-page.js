@@ -178,11 +178,11 @@ class CasperContract extends PolymerElement {
             <small id="error_messages" class="instructions error"></small>
 
             <div class="buttons">
-              <casper-button alt="[[decline_text]]" title="[[decline_text]]" id="declineButton" cssClass="decline-button" on-click="_declineAction">
+              <casper-button id="declineButton" cssClass="decline-button" on-click="_declineAction">
                 <slot name="decline-button">NO</slot>
               </casper-button>
 
-              <casper-button alt="[[action_text]]" title="[[action_text]]" id="submitButton" on-click="_customerAgreement">
+              <casper-button id="submitButton" on-click="_customerAgreement">
                 <slot name="action-button">Concordo e aceito</slot>
               </casper-button>
             </div>
@@ -226,7 +226,6 @@ class CasperContract extends PolymerElement {
 
     if(this.yesNoRequired == true) {
       this._showButton(this.$.declineButton);
-      this.decline_text = this.$.declineButton.children[0].assignedNodes()[0].textContent;
     } else {
       this._hideButton(this.$.declineButton);
       this._buttonState(false, this.$.declineButton);
@@ -235,7 +234,6 @@ class CasperContract extends PolymerElement {
     if(this.acceptanceRequired == true){
       this._showButton(this.$.submitButton);
       this._buttonState(false, this.$.submitButton);
-      this.action_text  = this.$.submitButton.children[0].assignedNodes()[0].textContent;
     } else {
       this._hideButton(this.$.submitButton);
       this._buttonState(true, this.$.submitButton);
