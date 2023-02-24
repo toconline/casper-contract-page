@@ -1,5 +1,6 @@
 import '@cloudware-casper/casper-button/casper-button.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
+import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
 
 class CasperContract extends PolymerElement {
   static get template() {
@@ -16,6 +17,7 @@ class CasperContract extends PolymerElement {
           --paper-spinner-stroke-width: 5px;
           --modal-height: 90vh;
           /* background-color: red; */
+          --ccp-horizontal-padding: 20px;
         }
 
         :host(.iframe) {
@@ -28,17 +30,23 @@ class CasperContract extends PolymerElement {
           padding: 0px;
           background-color: white;
           height: var(--modal-height);
+          border-radius: var(--radius-primary, 8px);
+          overflow: hidden;
         }
 
 
         .title {
-          padding: 20px 20px 0 20px;
+          font-size: 26px;
+          font-weight: 600;
+          color: var(--primary-color);
+          font-family: var(--default-font-family);
+          padding: var(--ccp-horizontal-padding) var(--ccp-horizontal-padding) 10px var(--ccp-horizontal-padding);
         }
 
         .container-text {
-          padding: 0 20px 0 20px;
+          padding: 0 var(--ccp-horizontal-padding);
           flex-grow: 2.0;
-          overflow: auto;
+          overflow: hidden;
           position: relative;
           /* background-color: yellow; */
           box-sizing: border-box;
@@ -46,7 +54,7 @@ class CasperContract extends PolymerElement {
 
         @media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
           .container-text {
-            padding: 0 20px 60px 20px;
+            padding: 0 var(--ccp-horizontal-padding) 60px var(--ccp-horizontal-padding);
             /* background-color: red; */
             box-sizing: border-box;
           }
@@ -58,25 +66,61 @@ class CasperContract extends PolymerElement {
         }
 
         .button-container {
-          padding: 0px 20px 0px 20px;
+          padding: 0px var(--ccp-horizontal-padding);
           /*position: fixed;
           bottom: 0;*/
-          width: 882px;.
+          width: 882px;
         }
 
         .button-container .inner-container, .button-container .shadow-break{
-          margin-left: -20px;
-          margin-right: -20px;
+          margin-left: calc(-1 * var(--ccp-horizontal-padding));
+          margin-right: calc(-1 * var(--ccp-horizontal-padding));
         }
 
         .button-container .inner-container {
           background: #f9f9f9;
-          padding: 10px 20px 20px 20px
+          padding: 10px var(--ccp-horizontal-padding) var(--ccp-horizontal-padding) var(--ccp-horizontal-padding);
         }
 
         .container-text .document-text {
           overflow: auto;
           height: 100%;
+          border: solid 1px #CCC;
+          box-sizing: border-box;
+        }
+
+        .scroll-overlay {
+          box-sizing: border-box;
+          position: absolute;
+          left: var(--ccp-horizontal-padding);
+          bottom: 0;
+          width: calc(100% - (2 * var(--ccp-horizontal-padding)));
+          padding: 30px 50px 25px 50px;
+          background-color: rgba(5, 28, 32, 0.65);
+          color: #FFF;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          text-align: center;
+          opacity: 1;
+          clip-path: ellipse(80% 100% at bottom center);
+          transition: opacity 1s linear, transform 0.9s ease-in-out 0.1s, clip-path 0.9s ease-in-out 0.1s, background-color 0.5s ease;
+        }
+
+        .scroll-overlay:hover {
+          background-color: rgba(5, 28, 32, 0.75);
+        }
+
+        .scroll-overlay casper-button {
+          margin: 0;
+        }
+
+        .scroll-overlay casper-button::part(main-button) {
+          background-color: transparent;
+          border: solid 1px #FFF;
+          color: #FFF;
+          border-radius: 20em;
         }
 
         .shadow-break {
@@ -111,13 +155,6 @@ class CasperContract extends PolymerElement {
         /* .button-container paper-button {
           width: 100%;
         } */
-
-        .title {
-          font-size: 30px;
-          color: var(--primary-color);
-          font-family: var(--default-font-family);
-        }
-
 
         .buttons {
           display: flex;
@@ -167,7 +204,17 @@ class CasperContract extends PolymerElement {
           </div>
         </template>
         <div class="container-text" id="container_text" name="document">
-          <div class='document-text'><slot name="document"></slot></div>
+          <div class="document-text" id="documentText">
+            <slot name="document"></slot>
+            <template is="dom-if" if="[[_displayScrollOverlay]]">
+              <div id="scrollOverlay" class="scroll-overlay" on-transitionend="_scrollOverlayTransitionEndHandler">
+                <slot name="scroll-overlay-description">Percorra até ao fim do documento para ler e aceitar</slot>
+                <casper-button on-click="_scrollOverlayButtonClickHandler">
+                  <slot name="scroll-overlay-button">Ok, percebi</slot>
+                </casper-button>
+              </div>
+            </template>
+          </div>
           <div class="shadow-break"></div>
         </div>
         <div class="button-container" id="action_container">
@@ -217,6 +264,14 @@ class CasperContract extends PolymerElement {
       noDelayResponse: {
         type: Boolean,
         value: false
+      },
+      scrollIsMandatory: {
+        type: Boolean,
+        value: false
+      },
+      _displayScrollOverlay: {
+        type: Boolean,
+        value: false
       }
     };
   }
@@ -264,6 +319,65 @@ class CasperContract extends PolymerElement {
           this._buttonState(!event.target.parentElement.children[0].checked);
         }
       }.bind(this), false);
+    }
+
+    afterNextRender(this, function () {
+      if (this.scrollIsMandatory && this.$.documentText.scrollHeight > this.$.documentText.clientHeight) {
+        this._displayScrollOverlay = true;
+        this._buttonState(true, this.$.submitButton);
+        
+        this._boundDocumentTextScrollHandler = this._documentTextScrollHandler.bind(this);
+        this.$.documentText.addEventListener('scroll', this._boundDocumentTextScrollHandler);
+      }
+    });
+  }
+
+  _closeScrollOverlay (element) {
+    if (!this._displayScrollOverlay) return;
+
+    element.style.opacity = 0;
+    element.style.clipPath = 'ellipse(80% 0% at bottom center)';
+    element.style.transform = 'translateY(100%)';
+  }
+
+  _scrollOverlayTransitionEndHandler (event) {
+    if (!event || event.propertyName === 'background-color') return;
+
+    if (event.isTrusted) {
+      this._displayScrollOverlay = false;
+    } else {
+      setTimeout((function () {
+        this._displayScrollOverlay = false;
+      }).bind(this), 1000);
+    }
+  }
+
+  _scrollOverlayButtonClickHandler (event) {
+    if (!event) return;
+
+    const overlay = event.composedPath().find(element => element.id === 'scrollOverlay');
+    this._closeScrollOverlay(overlay);
+  }
+
+  _documentTextScrollHandler (event) {
+    if (!event) return;
+
+    const scrollOverlay = this.shadowRoot.getElementById('scrollOverlay');
+    if (this.$.documentText.scrollTop > 20 && this._displayScrollOverlay) {
+      this._closeScrollOverlay(scrollOverlay);
+    }
+
+    // 30px are added so that the user doesn't have to completely scroll to the bottom
+    if ((this.$.documentText.scrollTop + this.$.documentText.clientHeight + 30) >= this.$.documentText.scrollHeight) {
+      this._buttonState(false, this.$.submitButton);
+
+      this.$.documentText.scrollTo({
+        behavior: 'smooth',
+        top: this.$.documentText.scrollHeight, 
+        left: 0
+      });
+
+      this.$.documentText.removeEventListener('scroll', this._boundDocumentTextScrollHandler);
     }
   }
 
