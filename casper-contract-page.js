@@ -34,7 +34,6 @@ class CasperContract extends PolymerElement {
           overflow: hidden;
         }
 
-
         .title {
           font-size: 26px;
           font-weight: 600;
@@ -87,6 +86,27 @@ class CasperContract extends PolymerElement {
           height: 100%;
           border: solid 1px #CCC;
           box-sizing: border-box;
+        }
+
+        slot[name="document"]::slotted(*) {
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        slot[name="document"]::slotted(iframe) {
+          border: none;
+        }
+
+        :host([theme="pdf"]) .document-text {
+          display: flex;
+          flex-direction: column;
+          background-color: grey;
+          gap: 1rem;
+          padding: 1rem;
+        }
+
+        :host([theme="pdf"]) slot[name="document"]::slotted(*) {
+          background-color: #FFF;
         }
 
         .scroll-overlay {
