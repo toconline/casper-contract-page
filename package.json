@@ -1,7 +1,7 @@
 {
   "description": "A component to acceptance of terms and conditions",
   "name": "@cloudware-casper/casper-contract-page",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
