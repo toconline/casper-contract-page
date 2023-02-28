@@ -84,7 +84,6 @@ class CasperContract extends PolymerElement {
         .container-text .document-text {
           overflow: auto;
           height: 100%;
-          border: solid 1px #CCC;
           box-sizing: border-box;
         }
 
@@ -95,6 +94,10 @@ class CasperContract extends PolymerElement {
 
         slot[name="document"]::slotted(iframe) {
           border: none;
+        }
+
+        :host([scroll-is-mandatory]) .document-text {
+          border: solid 1px #CCC;
         }
 
         :host([theme="pdf"]) .document-text {
@@ -341,15 +344,29 @@ class CasperContract extends PolymerElement {
       }.bind(this), false);
     }
 
-    afterNextRender(this, function () {
-      if (this.scrollIsMandatory && this.$.documentText.scrollHeight > this.$.documentText.clientHeight) {
-        this._displayScrollOverlay = true;
-        this._buttonState(true, this.$.submitButton);
-        
-        this._boundDocumentTextScrollHandler = this._documentTextScrollHandler.bind(this);
-        this.$.documentText.addEventListener('scroll', this._boundDocumentTextScrollHandler);
-      }
-    });
+    if (this.scrollIsMandatory) {
+      this._buttonState(true, this.$.submitButton);
+
+      this._resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target.id !== 'documentText') continue;
+
+          if (entry.target.scrollHeight > entry.target.clientHeight) {
+            this._resizeObserver.disconnect();
+
+            this._displayScrollOverlay = true;
+            this._buttonState(true, this.$.submitButton);
+            
+            this._boundDocumentTextScrollHandler = this._documentTextScrollHandler.bind(this);
+            this.$.documentText.addEventListener('scroll', this._boundDocumentTextScrollHandler);
+          } else {
+            this._buttonState(false, this.$.submitButton);
+          }
+        }
+      });
+      
+      this._resizeObserver.observe(this.$.documentText);
+    }
   }
 
   _closeScrollOverlay (element) {
@@ -363,6 +380,7 @@ class CasperContract extends PolymerElement {
   _scrollOverlayTransitionEndHandler (event) {
     if (!event || event.propertyName === 'background-color') return;
 
+    // Fix for the transition jumps, which are caused when the user clicks on the button and the triggered event is not trusted
     if (event.isTrusted) {
       this._displayScrollOverlay = false;
     } else {
