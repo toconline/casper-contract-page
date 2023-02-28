@@ -1,6 +1,5 @@
 import '@cloudware-casper/casper-button/casper-button.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
-import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
 
 class CasperContract extends PolymerElement {
   static get template() {
@@ -352,10 +351,9 @@ class CasperContract extends PolymerElement {
           if (entry.target.id !== 'documentText') continue;
 
           if (entry.target.scrollHeight > entry.target.clientHeight) {
-            this._resizeObserver.disconnect();
-
-            this._displayScrollOverlay = true;
             this._buttonState(true, this.$.submitButton);
+            this._resizeObserver.disconnect();
+            this._displayScrollOverlay = true;
             
             this._boundDocumentTextScrollHandler = this._documentTextScrollHandler.bind(this);
             this.$.documentText.addEventListener('scroll', this._boundDocumentTextScrollHandler);
