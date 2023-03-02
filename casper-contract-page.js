@@ -227,7 +227,7 @@ class CasperContract extends PolymerElement {
         </template>
         <div class="container-text" id="container_text" name="document">
           <div class="document-text" id="documentText">
-            <slot name="document"></slot>
+            <slot id="slotDocument" name="document"></slot>
             <template is="dom-if" if="[[_displayScrollOverlay]]">
               <div id="scrollOverlay" class="scroll-overlay" on-transitionend="_scrollOverlayTransitionEndHandler">
                 <slot name="scroll-overlay-description">Percorra até ao fim do documento para ler e aceitar</slot>
@@ -348,9 +348,9 @@ class CasperContract extends PolymerElement {
 
       this._resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
-          if (entry.target.id !== 'documentText') continue;
-
-          if (entry.target.scrollHeight > entry.target.clientHeight) {
+          if (this.$.documentText.scrollHeight > this.$.documentText.clientHeight) {
+            this.$.slotDocument.removeEventListener('slotchange', this._boundSlotDocumentSlotChangeHandler);
+            
             this._buttonState(true, this.$.submitButton);
             this._resizeObserver.disconnect();
             this._displayScrollOverlay = true;
@@ -363,8 +363,17 @@ class CasperContract extends PolymerElement {
         }
       });
       
-      this._resizeObserver.observe(this.$.documentText);
+      this._boundSlotDocumentSlotChangeHandler = this._slotDocumentSlotChangeHandler.bind(this);
+      this.$.slotDocument.addEventListener('slotchange', this._boundSlotDocumentSlotChangeHandler);
     }
+  }
+
+  _slotDocumentSlotChangeHandler (event) {
+    if (!event?.currentTarget) return;
+    
+    const slottedElements = event.currentTarget.assignedElements();
+    const lastSlottedElement = slottedElements[slottedElements.length - 1];
+    if (lastSlottedElement) this._resizeObserver.observe(lastSlottedElement);
   }
 
   _closeScrollOverlay (element) {
