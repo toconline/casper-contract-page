@@ -1,13 +1,13 @@
 {
   "description": "A component to acceptance of terms and conditions",
-  "name": "@cloudware-casper/casper-contract-page",
+  "name": "@toconline/casper-contract-page",
   "version": "3.0.3",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "main": "casper-contract-page.js",
   "dependencies": {
-    "@cloudware-casper/casper-button": "^2.x",
+    "@toconline/casper-button": "^2.x",
     "@polymer/polymer": "^3.x"
   }
 }

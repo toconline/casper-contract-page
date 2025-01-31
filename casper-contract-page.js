@@ -1,4 +1,4 @@
-import '@cloudware-casper/casper-button/casper-button.js';
+import '@toconline/casper-button/casper-button.js';
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
 class CasperContract extends PolymerElement {
